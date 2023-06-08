@@ -18,10 +18,15 @@ jobs:
             archive: zip
     steps:
       - uses: actions/checkout@master
+      - name: Setup Deno
+        uses: denoland/setup-deno@main
+        with:
+          deno-version: 'v1.x'
       - name: Compile and release
         uses: rust-build/rust-build.action@v1.4.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          PRE_BUILD: "deno run -A https://deno.land/x/deno_bindgen/cli.ts --release"
           RUSTTARGET: ${{ matrix.target }}
           ARCHIVE_TYPES: ${{ matrix.archive }}
