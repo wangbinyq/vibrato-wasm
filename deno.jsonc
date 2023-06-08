@@ -1,0 +1,9 @@
+{
+  "name": "vibrato-deno",
+  "version": "0.0.1",
+  "github": "https://github.com/wangbinyq/vibrato-deno",
+
+  "tasks": {
+    "test": "deno test --unstable -A"
+  }
+}
