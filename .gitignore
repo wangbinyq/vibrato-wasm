@@ -1,1 +1,3 @@
 /target
+!/target/release/libvibrato_deno.so
+!/target/release/libvibrato_deno.dylib
