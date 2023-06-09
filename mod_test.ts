@@ -1,7 +1,7 @@
 import { assertEquals } from "https://deno.land/std@0.190.0/testing/asserts.ts";
-import { Vibrato, init } from "./mod.ts";
+import { Vibrato, initVibrato } from "./mod.ts";
 
-await init();
+await initVibrato();
 
 function create_tokenizer() {
   const lex_data = Deno.readTextFileSync("./data/lex.csv");
@@ -23,6 +23,8 @@ Deno.test("test_tokenlist_index", () => {
   assertEquals(tokens[3].surface, "火星");
   assertEquals(tokens[4].surface, "猫");
   assertEquals(tokens[5].surface, "だ");
+
+  tokenizer.free();
 });
 
 Deno.test("test_tokenlist_iter_positions", () => {
@@ -41,6 +43,7 @@ Deno.test("test_tokenlist_iter_positions", () => {
     ],
     tokens.map((t) => [t.range_char.start, t.range_char.end])
   );
+  tokenizer.free();
 });
 
 Deno.test("test_feaure", () => {
@@ -58,4 +61,5 @@ Deno.test("test_feaure", () => {
     ],
     tokens.map((t) => t.feature)
   );
+  tokenizer.free();
 });

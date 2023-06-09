@@ -73,7 +73,7 @@ impl Vibrato {
         Ok(Self { tokenizer })
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(skip_jsdoc)]
     pub fn from_textdict(
         lex_data: &str,
         matrix_data: &str,

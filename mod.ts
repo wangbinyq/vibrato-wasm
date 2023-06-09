@@ -1,1 +1,2 @@
-export { Vibrato, default as init } from "./pkg/vibrato_deno.js";
+// @deno-types="./mod.d.ts"
+export { Vibrato, default as initVibrato } from "./pkg/vibrato_deno.js";
