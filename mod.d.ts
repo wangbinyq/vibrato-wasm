@@ -36,6 +36,13 @@ export class Vibrato {
     ignore_space?: boolean,
     max_grouping_len?: number
   );
+
+  static from_zstd(
+    dict_data: Uint8Array,
+    ignore_space?: boolean,
+    max_grouping_len?: number
+  ): Vibrato;
+
   /**
    */
   static from_textdict(

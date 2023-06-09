@@ -65,7 +65,9 @@ Deno.test("test_feaure", () => {
 });
 
 Deno.test("test_from_zstd", () => {
-  const tokenizer = create_tokenizer();
+  const tokenizer = Vibrato.from_zstd(
+    Deno.readFileSync("./data/system.dic.zst")
+  );
   const tokens = tokenizer.tokenize("まぁ社長は火星猫だ");
 
   assertEquals(

@@ -191,6 +191,36 @@ export class Vibrato {
         }
     }
     /**
+    * @param {Uint8Array} dict_data
+    * @param {boolean | undefined} ignore_space
+    * @param {number | undefined} max_grouping_len
+    * @returns {Vibrato}
+    */
+    static from_zstd(dict_data, ignore_space, max_grouping_len) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passArray8ToWasm0(dict_data, wasm.__wbindgen_malloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.vibrato_from_zstd(retptr, ptr0, len0, isLikeNone(ignore_space) ? 0xFFFFFF : ignore_space ? 1 : 0, !isLikeNone(max_grouping_len), isLikeNone(max_grouping_len) ? 0 : max_grouping_len);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Vibrato.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+    * @param {string} lex_data
+    * @param {string} matrix_data
+    * @param {string} char_data
+    * @param {string} unk_data
+    * @param {boolean | undefined} ignore_space
+    * @param {number | undefined} max_grouping_len
+    * @returns {Vibrato}
     */
     static from_textdict(lex_data, matrix_data, char_data, unk_data, ignore_space, max_grouping_len) {
         try {
