@@ -1,5 +1,7 @@
 import { assertEquals } from "https://deno.land/std@0.190.0/testing/asserts.ts";
-import { Vibrato } from "./mod.ts";
+import { Vibrato, init } from "./mod.ts";
+
+await init();
 
 function create_tokenizer() {
   const lex_data = Deno.readTextFileSync("./data/lex.csv");
@@ -13,7 +15,7 @@ function create_tokenizer() {
 Deno.test("test_tokenlist_index", () => {
   const tokenizer = create_tokenizer();
 
-  const tokens = tokenizer.tokenize_sync("まぁ社長は火星猫だ");
+  const tokens = tokenizer.tokenize("まぁ社長は火星猫だ");
 
   assertEquals(tokens[0].surface, "まぁ");
   assertEquals(tokens[1].surface, "社長");
@@ -26,7 +28,7 @@ Deno.test("test_tokenlist_index", () => {
 Deno.test("test_tokenlist_iter_positions", () => {
   const tokenizer = create_tokenizer();
 
-  const tokens = tokenizer.tokenize_sync("まぁ社長は火星猫だ");
+  const tokens = tokenizer.tokenize("まぁ社長は火星猫だ");
 
   assertEquals(
     [
@@ -43,7 +45,7 @@ Deno.test("test_tokenlist_iter_positions", () => {
 
 Deno.test("test_feaure", () => {
   const tokenizer = create_tokenizer();
-  const tokens = tokenizer.tokenize_sync("まぁ社長は火星猫だ");
+  const tokens = tokenizer.tokenize("まぁ社長は火星猫だ");
 
   assertEquals(
     [

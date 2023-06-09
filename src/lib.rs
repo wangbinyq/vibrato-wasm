@@ -1,60 +1,29 @@
-use deno_bindgen::deno_bindgen;
-use vibrato::{Dictionary, SystemDictionaryBuilder, Tokenizer};
+use serde::{Deserialize, Serialize};
+use vibrato::{errors::VibratoError, Dictionary, SystemDictionaryBuilder, Tokenizer};
+use wasm_bindgen::prelude::*;
 
-#[inline]
-fn __from_textdict(
-    lex_data: &str,
-    matrix_data: &str,
-    char_data: &str,
-    unk_data: &str,
-    ignore_space: bool,
-    max_grouping_len: u32,
-) -> usize {
-    match SystemDictionaryBuilder::from_readers(
-        lex_data.as_bytes(),
-        matrix_data.as_bytes(),
-        char_data.as_bytes(),
-        unk_data.as_bytes(),
-    )
-    .and_then(|dict| Tokenizer::new(dict).ignore_space(ignore_space))
-    .map(|tokenizer| Box::new(tokenizer.max_grouping_len(max_grouping_len as usize)))
-    {
-        Ok(tokenizer) => {
-            let raw = Box::into_raw(tokenizer);
+#[wasm_bindgen]
+pub struct Error {
+    message: String,
+}
 
-            raw as usize
-        }
-        Err(err) => {
-            eprintln!("{}", err);
-            0
+impl From<VibratoError> for Error {
+    fn from(e: VibratoError) -> Self {
+        Self {
+            message: e.to_string(),
         }
     }
 }
 
-#[inline]
-fn __new_vibrato(dict_data: &[u8], ignore_space: bool, max_grouping_len: u32) -> usize {
-    match Dictionary::read(dict_data)
-        .and_then(|dict| Tokenizer::new(dict).ignore_space(ignore_space))
-        .map(|tokenizer| Box::new(tokenizer.max_grouping_len(max_grouping_len as usize)))
-    {
-        Ok(tokenizer) => {
-            let raw = Box::into_raw(tokenizer);
-
-            raw as usize
-        }
-        Err(err) => {
-            eprintln!("{}", err);
-            0
+impl From<serde_wasm_bindgen::Error> for Error {
+    fn from(e: serde_wasm_bindgen::Error) -> Self {
+        Self {
+            message: e.to_string(),
         }
     }
 }
 
-#[inline]
-fn tokenizer_from_ptr<'a>(ptr: usize) -> &'a Tokenizer {
-    unsafe { &*(ptr as *const Tokenizer) }
-}
-
-#[deno_bindgen]
+#[derive(Serialize, Deserialize)]
 pub struct Range {
     start: usize,
     end: usize,
@@ -70,7 +39,7 @@ impl From<std::ops::Range<usize>> for Range {
     }
 }
 
-#[deno_bindgen]
+#[derive(Serialize, Deserialize)]
 pub struct Token {
     surface: String,
     lex_type: String,
@@ -84,78 +53,68 @@ pub struct Token {
     total_cost: i32,
 }
 
-#[inline]
-fn __tokenize(ptr: usize, text: &str) -> Vec<Token> {
-    let tokenizer = tokenizer_from_ptr(ptr);
-    let mut worker = tokenizer.new_worker();
-
-    worker.reset_sentence(text);
-
-    worker.tokenize();
-
-    worker
-        .token_iter()
-        .map(|t| Token {
-            surface: t.surface().to_string(),
-            lex_type: format!("{:?}", t.lex_type()).to_ascii_lowercase(),
-            feature: t.feature().to_string(),
-            word_id: t.word_idx().word_id,
-            range_char: t.range_char().into(),
-            range_byte: t.range_byte().into(),
-            left_id: t.left_id(),
-            right_id: t.right_id(),
-            word_cost: t.word_cost(),
-            total_cost: t.total_cost(),
-        })
-        .collect()
+#[wasm_bindgen]
+pub struct Vibrato {
+    tokenizer: Tokenizer,
 }
 
-fn __finalize(ptr: usize) {
-    let _ = unsafe { Box::from_raw(ptr as *mut Tokenizer) };
-}
+#[wasm_bindgen]
+impl Vibrato {
+    #[wasm_bindgen(constructor)]
+    pub fn new(
+        dict_data: &[u8],
+        ignore_space: Option<bool>,
+        max_grouping_len: Option<usize>,
+    ) -> Result<Vibrato, Error> {
+        let dict = Dictionary::read(dict_data)?;
+        let tokenizer = Tokenizer::new(dict)
+            .ignore_space(ignore_space.unwrap_or_default())?
+            .max_grouping_len(max_grouping_len.unwrap_or_default());
+        Ok(Self { tokenizer })
+    }
 
-#[deno_bindgen]
-pub fn from_textdict(
-    lex_data: &str,
-    matrix_data: &str,
-    char_data: &str,
-    unk_data: &str,
-    ignore_space: u8,
-    max_grouping_len: u32,
-) -> usize {
-    __from_textdict(
-        lex_data,
-        matrix_data,
-        char_data,
-        unk_data,
-        ignore_space > 0,
-        max_grouping_len,
-    )
-}
+    #[wasm_bindgen]
+    pub fn from_textdict(
+        lex_data: &str,
+        matrix_data: &str,
+        char_data: &str,
+        unk_data: &str,
+        ignore_space: Option<bool>,
+        max_grouping_len: Option<usize>,
+    ) -> Result<Vibrato, Error> {
+        let tokenizer = SystemDictionaryBuilder::from_readers(
+            lex_data.as_bytes(),
+            matrix_data.as_bytes(),
+            char_data.as_bytes(),
+            unk_data.as_bytes(),
+        )
+        .and_then(|dict| Tokenizer::new(dict).ignore_space(ignore_space.unwrap_or_default()))
+        .map(|tokenizer| tokenizer.max_grouping_len(max_grouping_len.unwrap_or_default()))?;
 
-#[deno_bindgen]
-pub fn new_vibrato(dict_data: &[u8], ignore_space: u8, max_grouping_len: u32) -> usize {
-    __new_vibrato(dict_data, ignore_space > 0, max_grouping_len)
-}
+        Ok(Self { tokenizer })
+    }
 
-#[deno_bindgen]
-pub struct Tokens {
-    tokens: Vec<Token>,
-}
+    #[wasm_bindgen]
+    pub fn tokenize(&self, text: &str) -> Result<JsValue, Error> {
+        let mut worker = self.tokenizer.new_worker();
+        worker.reset_sentence(&text);
+        worker.tokenize();
+        let tokens = worker
+            .token_iter()
+            .map(|t| Token {
+                surface: t.surface().to_string(),
+                lex_type: format!("{:?}", t.lex_type()).to_ascii_lowercase(),
+                feature: t.feature().to_string(),
+                word_id: t.word_idx().word_id,
+                range_char: t.range_char().into(),
+                range_byte: t.range_byte().into(),
+                left_id: t.left_id(),
+                right_id: t.right_id(),
+                word_cost: t.word_cost(),
+                total_cost: t.total_cost(),
+            })
+            .collect::<Vec<_>>();
 
-#[deno_bindgen]
-pub fn tokenize_sync(ptr: usize, text: &str) -> Tokens {
-    let tokens = __tokenize(ptr, text);
-    Tokens { tokens }
-}
-
-#[deno_bindgen(non_blocking)]
-pub fn tokenize(ptr: usize, text: &str) -> Tokens {
-    let tokens = __tokenize(ptr, text);
-    Tokens { tokens }
-}
-
-#[deno_bindgen]
-pub fn finalize(ptr: usize) {
-    __finalize(ptr);
+        Ok(serde_wasm_bindgen::to_value(&tokens)?)
+    }
 }
