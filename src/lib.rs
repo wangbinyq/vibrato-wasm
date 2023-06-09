@@ -23,6 +23,14 @@ impl From<serde_wasm_bindgen::Error> for Error {
     }
 }
 
+impl From<std::io::Error> for Error {
+    fn from(e: std::io::Error) -> Self {
+        Self {
+            message: e.to_string(),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct Range {
     start: usize,
@@ -73,7 +81,17 @@ impl Vibrato {
         Ok(Self { tokenizer })
     }
 
-    #[wasm_bindgen(skip_jsdoc)]
+    #[wasm_bindgen]
+    pub fn from_zstd(
+        dict_data: &[u8],
+        ignore_space: Option<bool>,
+        max_grouping_len: Option<usize>,
+    ) -> Result<Vibrato, Error> {
+        let reader = zstd::decode_all(dict_data)?;
+        Self::new(&reader, ignore_space, max_grouping_len)
+    }
+
+    #[wasm_bindgen]
     pub fn from_textdict(
         lex_data: &str,
         matrix_data: &str,

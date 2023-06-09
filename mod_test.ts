@@ -63,3 +63,21 @@ Deno.test("test_feaure", () => {
   );
   tokenizer.free();
 });
+
+Deno.test("test_from_zstd", () => {
+  const tokenizer = create_tokenizer();
+  const tokens = tokenizer.tokenize("まぁ社長は火星猫だ");
+
+  assertEquals(
+    [
+      "名詞,固有名詞,一般,*",
+      "名詞,普通名詞,一般,*",
+      "助詞,係助詞,*,*",
+      "名詞,固有名詞,一般,*",
+      "名詞,普通名詞,*,*",
+      "助動詞,*,*,*",
+    ],
+    tokens.map((t) => t.feature)
+  );
+  tokenizer.free();
+});
