@@ -63,7 +63,7 @@ pub struct Token {
 
 #[wasm_bindgen]
 pub struct Vibrato {
-    tokenizer: Tokenizer,
+    tokenizer: Box<Tokenizer>,
 }
 
 #[wasm_bindgen]
@@ -75,9 +75,11 @@ impl Vibrato {
         max_grouping_len: Option<usize>,
     ) -> Result<Vibrato, Error> {
         let dict = Dictionary::read(dict_data)?;
-        let tokenizer = Tokenizer::new(dict)
-            .ignore_space(ignore_space.unwrap_or_default())?
-            .max_grouping_len(max_grouping_len.unwrap_or_default());
+        let tokenizer = Box::new(
+            Tokenizer::new(dict)
+                .ignore_space(ignore_space.unwrap_or_default())?
+                .max_grouping_len(max_grouping_len.unwrap_or_default()),
+        );
         Ok(Self { tokenizer })
     }
 
@@ -107,7 +109,9 @@ impl Vibrato {
             unk_data.as_bytes(),
         )
         .and_then(|dict| Tokenizer::new(dict).ignore_space(ignore_space.unwrap_or_default()))
-        .map(|tokenizer| tokenizer.max_grouping_len(max_grouping_len.unwrap_or_default()))?;
+        .map(|tokenizer| {
+            Box::new(tokenizer.max_grouping_len(max_grouping_len.unwrap_or_default()))
+        })?;
 
         Ok(Self { tokenizer })
     }
