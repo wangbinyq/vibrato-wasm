@@ -19,71 +19,70 @@ function readPointer(v: any): Uint8Array {
   return buf
 }
 
-const url = new URL("../target/release", import.meta.url)
+const url = new URL(
+  "https://github.com/wangbinyq/vibrato-deno/raw/ffi/target/release",
+  import.meta.url,
+)
 
-let uri = url.pathname
+import { dlopen, FetchOptions } from "https://deno.land/x/plug@1.0.1/mod.ts"
+let uri = url.toString()
 if (!uri.endsWith("/")) uri += "/"
 
-// https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibrarya#parameters
-if (Deno.build.os === "windows") {
-  uri = uri.replace(/\//g, "\\")
-  // Remove leading slash
-  if (uri.startsWith("\\")) {
-    uri = uri.slice(1)
-  }
-}
+let darwin: string | { aarch64: string; x86_64: string } = uri
 
-const { symbols } = Deno.dlopen(
-  {
-    darwin: uri + "libvibrato_deno.dylib",
-    windows: uri + "vibrato_deno.dll",
-    linux: uri + "libvibrato_deno.so",
-    freebsd: uri + "libvibrato_deno.so",
-    netbsd: uri + "libvibrato_deno.so",
-    aix: uri + "libvibrato_deno.so",
-    solaris: uri + "libvibrato_deno.so",
-    illumos: uri + "libvibrato_deno.so",
-  }[Deno.build.os],
-  {
-    finalize: { parameters: ["usize"], result: "void", nonblocking: false },
-    from_textdict: {
-      parameters: [
-        "buffer",
-        "usize",
-        "buffer",
-        "usize",
-        "buffer",
-        "usize",
-        "buffer",
-        "usize",
-        "u8",
-        "u32",
-      ],
-      result: "usize",
-      nonblocking: false,
-    },
-    from_zstd: {
-      parameters: ["buffer", "usize", "u8", "u32"],
-      result: "usize",
-      nonblocking: false,
-    },
-    new_vibrato: {
-      parameters: ["buffer", "usize", "u8", "u32"],
-      result: "usize",
-      nonblocking: false,
-    },
-    tokenize: {
-      parameters: ["usize", "buffer", "usize"],
-      result: "buffer",
-      nonblocking: true,
-    },
-    tokenize_sync: {
-      parameters: ["usize", "buffer", "usize"],
-      result: "buffer",
-      nonblocking: false,
+const opts: FetchOptions = {
+  name: "vibrato_deno",
+  url: {
+    darwin,
+    windows: uri,
+    linux: uri,
+  },
+  suffixes: {
+    darwin: {
+      aarch64: "_arm64",
     },
   },
-)
+  cache: "use",
+}
+const { symbols } = await dlopen(opts, {
+  finalize: { parameters: ["usize"], result: "void", nonblocking: false },
+  from_textdict: {
+    parameters: [
+      "buffer",
+      "usize",
+      "buffer",
+      "usize",
+      "buffer",
+      "usize",
+      "buffer",
+      "usize",
+      "u8",
+      "u32",
+    ],
+    result: "usize",
+    nonblocking: false,
+  },
+  from_zstd: {
+    parameters: ["buffer", "usize", "u8", "u32"],
+    result: "usize",
+    nonblocking: false,
+  },
+  new_vibrato: {
+    parameters: ["buffer", "usize", "u8", "u32"],
+    result: "usize",
+    nonblocking: false,
+  },
+  tokenize: {
+    parameters: ["usize", "buffer", "usize"],
+    result: "buffer",
+    nonblocking: true,
+  },
+  tokenize_sync: {
+    parameters: ["usize", "buffer", "usize"],
+    result: "buffer",
+    nonblocking: false,
+  },
+})
 export type Range = {
   start: number
   end: number
