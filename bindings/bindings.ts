@@ -62,6 +62,11 @@ const { symbols } = Deno.dlopen(
       result: "usize",
       nonblocking: false,
     },
+    from_zstd: {
+      parameters: ["buffer", "usize", "u8", "u32"],
+      result: "usize",
+      nonblocking: false,
+    },
     new_vibrato: {
       parameters: ["buffer", "usize", "u8", "u32"],
       result: "usize",
@@ -128,6 +133,13 @@ export function from_textdict(
     a4,
     a5,
   )
+  const result = rawResult
+  return result
+}
+export function from_zstd(a0: Uint8Array, a1: number, a2: number) {
+  const a0_buf = encode(a0)
+
+  const rawResult = symbols.from_zstd(a0_buf, a0_buf.byteLength, a1, a2)
   const result = rawResult
   return result
 }

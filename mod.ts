@@ -1,5 +1,6 @@
 import {
   from_textdict,
+  from_zstd,
   finalize,
   new_vibrato,
   Token,
@@ -44,6 +45,16 @@ export class Vibrato {
       ignore_space ? 1 : 0,
       max_grouping_len
     );
+
+    return new Vibrato(ptr);
+  }
+
+  static from_zstd(
+    dict_data: Uint8Array,
+    ignore_space = false,
+    max_grouping_len = 0
+  ) {
+    const ptr = from_zstd(dict_data, ignore_space ? 1 : 0, max_grouping_len);
 
     return new Vibrato(ptr);
   }

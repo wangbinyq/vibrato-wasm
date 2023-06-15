@@ -134,6 +134,13 @@ pub fn from_textdict(
 }
 
 #[deno_bindgen]
+pub fn from_zstd(dict_data: &[u8], ignore_space: u8, max_grouping_len: u32) -> usize {
+    let data = zstd::decode_all(dict_data).unwrap();
+
+    __new_vibrato(&data, ignore_space > 0, max_grouping_len)
+}
+
+#[deno_bindgen]
 pub fn new_vibrato(dict_data: &[u8], ignore_space: u8, max_grouping_len: u32) -> usize {
     __new_vibrato(dict_data, ignore_space > 0, max_grouping_len)
 }
