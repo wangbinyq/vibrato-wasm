@@ -17,7 +17,7 @@ function create_tokenizer() {
 }
 ```
 
-2. create tokenizer from zstd dict files
+2. or create tokenizer from zstd dict files
 
 ```ts
 const tokenizer = Vibrato.from_zstd(
@@ -25,7 +25,7 @@ const tokenizer = Vibrato.from_zstd(
 );
 ```
 
-3. tokeinzer
+3. token
 
 ```ts
 const tokens = tokenizer.tokenize("まぁ社長は火星猫だ");
