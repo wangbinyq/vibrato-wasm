@@ -42,3 +42,18 @@ assertEquals(
   tokens.map((t) => t.feature)
 );
 ```
+
+## Performances
+
+> this wasm version:
+
+| benchmark           | time (avg)     | iter/s   | (min … max)             | p75       | p99      | p995     |
+|---------------------|----------------|----------|-------------------------|-----------|----------|----------|
+| tokenize            | 13.58 µs/iter  | 73,637.7 | (12.79 µs … 270.67 µs)  | 13.54 µs  | 17.12 µs | 19.75 µs |
+| tokenize large text | 860.91 µs/iter | 1,161.6  | (794.38 µs … 1.21 ms)   | 888.46 µs | 1.05 ms  | 1.19 ms  |
+
+> rust native version:
+
+tokenize                time:   [1.3445 µs 1.4169 µs 1.5687 µs]
+
+tokenize large text     time:   [44.021 µs 44.604 µs 45.435 µs]
