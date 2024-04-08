@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.221.0/testing/asserts.ts";
+import { assertEquals } from "jsr:@std/assert";
 import { Vibrato, initVibrato } from "./mod.ts";
 
 await initVibrato();
