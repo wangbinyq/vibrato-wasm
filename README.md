@@ -1,6 +1,6 @@
-## vibrato-deno
+## vibrato-wasm
 
-deno binding of [vibrato](https://github.com/daac-tools/vibrato)
+wasm binding of [vibrato](https://github.com/daac-tools/vibrato)
 
 ## examples
 
@@ -43,7 +43,7 @@ assertEquals(
 );
 ```
 
-## Performances
+## performances
 
 > this wasm version:
 
