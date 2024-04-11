@@ -1,5 +1,5 @@
 [package]
-name = "vibrato-deno"
+name = "vibrato-wasm"
 version = "0.1.0"
 edition = "2021"
 
@@ -25,7 +25,7 @@ name = "bench"
 harness = false
 
 [lib]
-name = "vibrato_deno"
+name = "vibrato_wasm"
 crate-type = ["cdylib"]
 
 [profile.release]

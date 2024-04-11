@@ -53,10 +53,7 @@ export class Vibrato {
     ignore_space?: boolean,
     max_grouping_len?: number
   ): Vibrato;
-  /**
-   * @param {string} text
-   * @returns {any}
-   */
+
   tokenize(text: string): Token[];
 }
 
@@ -113,7 +110,7 @@ export type SyncInitInput = BufferSource | WebAssembly.Module;
  *
  * @returns {InitOutput}
  */
-export function initSync(module: SyncInitInput): InitOutput;
+export function initVibratoSync(module: SyncInitInput): InitOutput;
 
 /**
  * If `module_or_path` is {RequestInfo} or {URL}, makes a request and
@@ -123,6 +120,6 @@ export function initSync(module: SyncInitInput): InitOutput;
  *
  * @returns {Promise<InitOutput>}
  */
-export default function __wbg_init(
+export function initVibrato(
   module_or_path?: InitInput | Promise<InitInput>
 ): Promise<InitOutput>;
