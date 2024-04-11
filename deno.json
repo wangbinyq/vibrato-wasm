@@ -1,5 +1,5 @@
 {
   "name": "@wangb/vibrato-wasm",
-  "exports": "./mod.ts",
-  "version": "0.0.7"
+  "exports": "./mod.js",
+  "version": "0.0.8"
 }

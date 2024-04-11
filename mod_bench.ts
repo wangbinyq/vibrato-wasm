@@ -1,4 +1,4 @@
-import { Vibrato, initVibrato } from "./mod.ts";
+import { Vibrato, initVibrato } from "./mod.js";
 
 await initVibrato();
 const tokenizer = Vibrato.from_zstd(Deno.readFileSync("./data/system.dic.zst"));

@@ -3,4 +3,4 @@ export {
   Vibrato,
   default as initVibrato,
   initSync as initVibratoSync,
-} from "./pkg/vibrato_deno.js";
+} from "./mod.js";
